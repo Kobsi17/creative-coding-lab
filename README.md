@@ -11,7 +11,6 @@ This repository is an archive of the works and a technical portfolio: what each 
 | ![](SPIRAL-GALAXY/images/preview.png) | [SPIRAL GALAXY](SPIRAL-GALAXY/) | 2026 | free, in this repository |
 | ![](JELLYFISH/images/preview.png) | [JELLYFISH (Speaking in Light)](JELLYFISH/) | 2026 | free, in this repository |
 | ![](STAR-NURSERY/images/preview.png) | [GALACTIC STAR NURSERY](STAR-NURSERY/) | 2026 | free, in this repository |
-| ![](DREAM-SWEET-IN-SEA-MAJOR/images/preview.png) | [DREAM SWEET IN SEA MAJOR](DREAM-SWEET-IN-SEA-MAJOR/) | 2026 | free, in this repository |
 | ![](BIRTH-FLOWER/images/preview.png) | [BIRTH FLOWER](BIRTH-FLOWER/) | 2026 | free, in this repository |
 | ![](BACKROOM/images/preview.png) | [THE BACKROOMS: LEVEL 0](BACKROOM/) | 2026 | free, in this repository |
 | ![](CHRISTMAS-TREE/images/preview.png) | [WINTER WONDERLAND](CHRISTMAS-TREE/) | 2026 | free, in this repository |
