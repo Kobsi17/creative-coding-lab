@@ -12,3 +12,16 @@ python spiral_galaxy_pygame.py
 ```
 
 ![Spiral Galaxy preview](previews/spiral-galaxy-refined.png)
+
+## Jellyfish
+
+Glowing ASCII jellyfish and marine snow drift through deep blue water.
+
+Drag with the **left mouse button** to orbit, including while paused. **Right-click** triggers a bioluminescent pulse. Press **Space** to pause or resume, **R** to restart, **M** to mute, **F** for fullscreen, **S** to save a timestamped PNG beside the script, or **Esc** to exit.
+
+```sh
+python -m pip install pygame-ce numpy
+python JellyFish1.py
+```
+
+![Jellyfish preview](previews/jellyfish-abyss.png)

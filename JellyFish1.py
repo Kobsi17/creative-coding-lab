@@ -313,16 +313,15 @@ def frame(t, cols, rows, aspect, user_yaw=0.0, user_pitch=0.0, manual_boost=0.0)
     eye, fwd, right, up = camera(t, user_yaw, user_pitch)
     view_dir = -fwd
 
-    Ps, Ns, Ts, Ks, Ss = [], [], [], [], []
+    Ps, Ts, Ks, Ss = [], [], [], []
     for jelly in JELLIES:
         P, N, T, K, S = build_jelly_points(jelly, t, manual_boost)
         # Fresnel translucent rim lighting: grazing edges glow bright, front center stays airy
-        facing = np.abs(N @ view_dir)
+        facing = np.clip(np.abs(N @ view_dir), 0.0, 1.0)
         fresnel = (1.0 - facing) ** 1.45
         S = S * (0.48 + 0.95 * fresnel)
         T = np.where((K == jelly["id"]) & (fresnel > 0.68) & (S > 0.55), ICE_GLOW, T)
         Ps.append(P)
-        Ns.append(N)
         Ts.append(T)
         Ks.append(K)
         Ss.append(S)
@@ -344,9 +343,11 @@ def frame(t, cols, rows, aspect, user_yaw=0.0, user_pitch=0.0, manual_boost=0.0)
     shade = np.concatenate(Ss) * smooth(t / 1.4)
 
     # Project 3D points onto the ASCII grid
-    F = 2.85
+    F = 2.12
     rel = P - eye
     x, y, z = rel @ right, rel @ up, rel @ fwd
+    # Distant specimens and snow lose brightness as they recede into the water.
+    shade *= np.exp(-0.23 * np.maximum(z - 2.0, 0.0))
     zz = np.maximum(z, 0.25)
     sx = (0.5 + x / zz * F * 0.5) * cols
     sy = (0.5 - y / zz * F * 0.5 * aspect) * rows
@@ -485,6 +486,13 @@ def window_size():
     return int(W * k), int(H * k)
 
 
+def abyss_background():
+    x, y = np.mgrid[-1:1:64j, 0:1:48j]
+    overhead_light = np.exp(-1.8 * x**2 - 4.8 * y)
+    pixels = np.array([2, 5, 16]) + overhead_light[..., None] * np.array([4, 17, 28])
+    return pygame.transform.smoothscale(pygame.surfarray.make_surface(pixels.astype(np.uint8)), (W, H))
+
+
 def main():
     pygame.init()
     audio = build_abyss_audio()
@@ -496,6 +504,7 @@ def main():
     window = pygame.display.set_mode(size)
     pygame.display.set_caption(TITLE)
     screen = pygame.Surface((W, H))
+    background = abyss_background()
     small = pygame.font.SysFont(MONO, 16)
     canvas, clock = Canvas(glyphs()), pygame.time.Clock()
 
@@ -505,13 +514,14 @@ def main():
     art, info, count = canvas.draw(t, user_yaw, user_pitch, manual_boost)
 
     while True:
+        redraw = False
         for e in pygame.event.get():
             if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
                 pygame.quit()
                 return
             if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
                 paused = not paused
-                if audio is not None and not muted:
+                if audio is not None:
                     pygame.mixer.pause() if paused else pygame.mixer.unpause()
             if e.type == pygame.KEYDOWN and e.key == pygame.K_m and audio is not None:
                 muted = not muted
@@ -528,16 +538,19 @@ def main():
             if e.type == pygame.KEYDOWN and e.key == pygame.K_r:
                 t, user_yaw, user_pitch, manual_boost = 0.0, 0.0, 0.0, 0.0
                 canvas.reset()
+                redraw = True
             if e.type == pygame.KEYDOWN and e.key == pygame.K_s:
                 pygame.image.save(screen, str(Path(__file__).with_name(f"jellyfish2_{int(time.time())}.png")))
             if e.type == pygame.MOUSEBUTTONDOWN and e.button == 3:
                 manual_boost = 0.05  # trigger bioluminescent nerve surge
+                redraw = True
 
         buttons = pygame.mouse.get_pressed()
         if buttons[0]:
             mdx, mdy = pygame.mouse.get_rel()
             user_yaw += mdx * 0.008
             user_pitch = float(np.clip(user_pitch + mdy * 0.006, -0.9, 0.9))
+            redraw = redraw or bool(mdx or mdy)
         else:
             pygame.mouse.get_rel()
 
@@ -551,10 +564,14 @@ def main():
             if t > DUR:
                 t = 0.0
                 canvas.reset()
+        elif redraw:
+            canvas.reset()
+
+        if not paused or redraw:
             art, info, count = canvas.draw(t, user_yaw, user_pitch, manual_boost)
 
         # Deep abyssal midnight navy background + horizontal scanline & volumetric bloom
-        screen.fill((3, 10, 24))
+        screen.blit(background, (0, 0))
         screen.blit(art, (0, 0), special_flags=pygame.BLEND_ADD)
         screen.blit(blur_anisotropic(art, 12, 3, 0.65), (0, 0), special_flags=pygame.BLEND_ADD)  # horizontal light streaks
         screen.blit(blur_anisotropic(art, 6, 6, 0.55), (0, 0), special_flags=pygame.BLEND_ADD)
