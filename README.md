@@ -44,6 +44,20 @@ python SALT-SIGNAL/salt_signal.py
 
 Each folder contains the full script, `HOW_IT_WORKS.txt`, `README.md`, `README.txt`, `requirements.txt`, `LICENSE.txt`, and `images/`.
 
+## Pixel Corner Lab
+
+Play Spiral Galaxy in the browser and preview your own JavaScript or self-contained HTML sketches. Start the site from the repository root:
+
+```sh
+python -m http.server 8000 --bind 127.0.0.1 --directory sites/pixel-corner-lab/dist
+```
+
+Open [Pixel Corner Lab](http://127.0.0.1:8000/). Use **Play galaxy** to start the animation and **Pause galaxy** to freeze it. Paste code or use **Open file**, select the matching format, then choose **Run sketch**. **Stop sketch** closes the preview and returns to Spiral Galaxy. **Download source** saves the current editor contents. **Full screen** expands the preview where the browser supports it.
+
+The site needs no additional packages. The editor runs JavaScript and self-contained HTML in a sandboxed preview. Desktop Python/Pygame sketches still use the desktop setup above unless ported for the browser.
+
+[Spiral Galaxy preview](sites/pixel-corner-lab/dist/galaxy/poster.png)
+
 ## License
 
 Kobsi · `@Kobsi17` · 2026. Free for learning and personal projects. See [LICENSE.txt](LICENSE.txt).

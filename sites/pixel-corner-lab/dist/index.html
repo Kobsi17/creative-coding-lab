@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Run creative coding sketches in the browser and play Kobsi’s Spiral Galaxy.">
+<title>Pixel Corner Lab · Kobsi</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="galaxy/particles.js"></script>
+<script defer src="galaxy/player.js"></script>
+<script defer src="lab.js"></script>
+</head>
+<body>
+<header><div class="brand"><span aria-hidden="true">✳</span> KOBSI / CREATIVE CODING</div><a href="https://github.com/Kobsi17/creative-coding-lab">Art archive</a></header>
+<main>
+  <section class="intro">
+    <h1>Pixel Corner<span> Lab</span></h1>
+    <p>Play Spiral Galaxy or run a browser sketch of your own.</p>
+  </section>
+  <section class="workspace" aria-label="Art workspace">
+    <div class="preview">
+      <div class="bar"><h2 id="piece">Spiral Galaxy</h2><span id="format">Canvas</span></div>
+      <div class="stage" id="stage">
+        <img id="poster" src="galaxy/poster.png" alt="Four colorful spiral arms surrounding a glowing core">
+        <canvas id="galaxy" hidden role="img" aria-label="Animated spiral galaxy"></canvas>
+      </div>
+      <div class="bar transport">
+        <button type="button" class="accent" id="play">Play galaxy</button>
+        <button type="button" id="stop" hidden>Stop sketch</button>
+        <button type="button" id="expand">Full screen</button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+    </div>
+    <div class="editor">
+      <div class="bar"><h2>Sketch editor</h2><label class="file">Open file<input id="file" type="file" accept=".js,.html,.htm"></label></div>
+      <div class="editor-body">
+        <label for="code">Sketch source</label>
+        <select id="language" aria-label="Sketch format"><option value="js">JavaScript</option><option value="html">HTML</option></select>
+        <textarea id="code" spellcheck="false" aria-describedby="hint"></textarea>
+        <p id="hint">Paste JavaScript or self-contained HTML. Desktop Python/Pygame sketches need a browser port.</p>
+      </div>
+      <div class="bar"><button class="accent" type="button" id="run">Run sketch</button><button type="button" id="download">Download source</button></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
