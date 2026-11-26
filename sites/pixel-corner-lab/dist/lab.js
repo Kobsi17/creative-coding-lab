@@ -9,6 +9,8 @@ const language = byId('language');
 const status = byId('status');
 let galaxy;
 let sketch;
+let pythonRequest;
+let filename = '';
 
 code.value = `const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -53,6 +55,7 @@ play.addEventListener('click', () => {
 function removeSketch() {
   sketch?.remove();
   sketch = undefined;
+  pythonRequest = undefined;
 }
 
 function displayGalaxy() {
@@ -85,6 +88,20 @@ byId('run').addEventListener('click', () => {
   byId('format').textContent = language.options[language.selectedIndex].text;
   status.textContent = '';
 
+  if (language.value === 'py') {
+    status.textContent = 'Loading Python and Pygame…';
+    pythonRequest = {
+      source: code.value,
+      filename: filename.endsWith('.py') ? filename : 'sketch.py'
+    };
+    sketch = document.createElement('iframe');
+    sketch.title = 'Python sketch preview';
+    sketch.setAttribute('sandbox', 'allow-scripts');
+    sketch.srcdoc = pythonFramePage();
+    stage.append(sketch);
+    return;
+  }
+
   const source = JSON.stringify(code.value).replaceAll('<', '\\u003c');
   const errorHook = `<script>
     const report = message => parent.postMessage({type:'sketch-error', message}, '*');
@@ -110,9 +127,38 @@ byId('run').addEventListener('click', () => {
   stage.append(sketch);
 });
 
-window.addEventListener('message', event => {
-  if (sketch && event.source === sketch.contentWindow && event.data?.type === 'sketch-error') {
+window.addEventListener('message', async event => {
+  if (!sketch || event.source !== sketch.contentWindow) return;
+  if (['sketch-error', 'sketch-status', 'sketch-output'].includes(event.data?.type)) {
     status.textContent = String(event.data.message).slice(0, 500);
+  }
+  if (event.data?.type === 'python-ready' && pythonRequest) {
+    const frame = sketch;
+    const request = pythonRequest;
+    pythonRequest = undefined;
+    try {
+      const response = await fetch('python-loop.py');
+      if (!response.ok) throw new Error('Adapter unavailable');
+      const adapter = await response.text();
+      if (sketch === frame) {
+        frame.contentWindow.postMessage({type: 'run-python', ...request, adapter}, '*');
+      }
+    } catch {
+      if (sketch === frame) status.textContent = 'The Python adapter could not load.';
+    }
+  }
+});
+
+byId('backroom').addEventListener('click', async () => {
+  try {
+    const response = await fetch('backroom.py');
+    if (!response.ok) throw new Error('Source unavailable');
+    code.value = await response.text();
+    language.value = 'py';
+    filename = 'backroom.py';
+    status.textContent = 'Backrooms loaded. Select Run sketch to preview it.';
+  } catch {
+    status.textContent = 'Backrooms source could not load.';
   }
 });
 
@@ -122,13 +168,14 @@ byId('file').addEventListener('change', async event => {
   input.value = '';
   if (!file) return;
   const extension = file.name.split('.').at(-1).toLowerCase();
-  if (!['js', 'html', 'htm'].includes(extension)) {
-    status.textContent = 'Choose a .js or .html file.';
+  if (!['py', 'js', 'html', 'htm'].includes(extension)) {
+    status.textContent = 'Choose a .py, .js, or .html file.';
     return;
   }
   try {
     code.value = await file.text();
-    language.value = extension === 'js' ? 'js' : 'html';
+    filename = file.name;
+    language.value = extension === 'htm' ? 'html' : extension;
     status.textContent = 'File loaded. Select Run sketch to preview it.';
   } catch {
     status.textContent = 'The file could not be read.';

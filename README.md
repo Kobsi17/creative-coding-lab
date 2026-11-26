@@ -46,17 +46,19 @@ Each folder contains the full script, `HOW_IT_WORKS.txt`, `README.md`, `README.t
 
 ## Pixel Corner Lab
 
-Play Spiral Galaxy in the browser and preview your own JavaScript or self-contained HTML sketches. Start the site from the repository root:
+Play Spiral Galaxy in the browser and preview your own Python/Pygame, JavaScript, or self-contained HTML sketches. Start the site from the repository root:
 
 ```sh
 python -m http.server 8000 --bind 127.0.0.1 --directory sites/pixel-corner-lab/dist
 ```
 
-Open [Pixel Corner Lab](http://127.0.0.1:8000/). Use **Play galaxy** to start the animation and **Pause galaxy** to freeze it. Paste code or use **Open file**, select the matching format, then choose **Run sketch**. **Stop sketch** closes the preview and returns to Spiral Galaxy. **Download source** saves the current editor contents. **Full screen** expands the preview where the browser supports it.
+Open [Pixel Corner Lab](http://127.0.0.1:8000/). Use **Play galaxy** to start the animation and **Pause galaxy** to freeze it. Paste code or use **Open file**, select the matching format, then choose **Run sketch**. For Python, select **Start Python sketch** after the runtime loads. **Stop sketch** closes the preview and returns to Spiral Galaxy. **Download source** saves the current editor contents. **Full screen** expands the preview where the browser supports it.
 
-The site needs no additional packages. The editor runs JavaScript and self-contained HTML in a sandboxed preview. Desktop Python/Pygame sketches still use the desktop setup above unless ported for the browser.
+Choose **Load Backrooms** to try the original `BACKROOM/backroom.py`. In the preview, drag to look around, hold the right mouse button to trigger a flicker, press `Space` to pause or resume, `M` to mute, and `R` to restart.
 
-[Spiral Galaxy preview](sites/pixel-corner-lab/dist/galaxy/poster.png)
+Python mode downloads Pyodide 0.29.4, NumPy, and Pygame CE from the Pyodide CDN. No additional local packages are required to serve the site. The runner adapts the archive’s synchronous `main()` loops in memory. It runs in a sandbox with a virtual filesystem, so desktop file writes stay in that session. Sketches that use other native modules or depend on local assets may need changes for the browser.
+
+[Spiral Galaxy preview](sites/pixel-corner-lab/dist/galaxy/poster.png) · [Backrooms browser preview](previews/backrooms-browser.png)
 
 ## License
 

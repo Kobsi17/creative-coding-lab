@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="style.css">
 <script defer src="galaxy/particles.js"></script>
 <script defer src="galaxy/player.js"></script>
+<script defer src="python-runner.js"></script>
 <script defer src="lab.js"></script>
 </head>
 <body>
@@ -15,7 +16,7 @@
 <main>
   <section class="intro">
     <h1>Pixel Corner<span> Lab</span></h1>
-    <p>Play Spiral Galaxy or run a browser sketch of your own.</p>
+    <p>Play Spiral Galaxy or run your own Python, JavaScript, or HTML sketch.</p>
   </section>
   <section class="workspace" aria-label="Art workspace">
     <div class="preview">
@@ -32,12 +33,12 @@
       <p class="status" id="status" role="status"></p>
     </div>
     <div class="editor">
-      <div class="bar"><h2>Sketch editor</h2><label class="file">Open file<input id="file" type="file" accept=".js,.html,.htm"></label></div>
+      <div class="bar"><h2>Sketch editor</h2><button type="button" id="backroom">Load Backrooms</button><label class="file">Open file<input id="file" type="file" accept=".py,.js,.html,.htm"></label></div>
       <div class="editor-body">
         <label for="code">Sketch source</label>
-        <select id="language" aria-label="Sketch format"><option value="js">JavaScript</option><option value="html">HTML</option></select>
+        <select id="language" aria-label="Sketch format"><option value="js">JavaScript</option><option value="html">HTML</option><option value="py">Python / Pygame</option></select>
         <textarea id="code" spellcheck="false" aria-describedby="hint"></textarea>
-        <p id="hint">Paste JavaScript or self-contained HTML. Desktop Python/Pygame sketches need a browser port.</p>
+        <p id="hint">Paste or open a self-contained sketch. For Python, click Start Python sketch when the runtime is ready.</p>
       </div>
       <div class="bar"><button class="accent" type="button" id="run">Run sketch</button><button type="button" id="download">Download source</button></div>
     </div>
