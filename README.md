@@ -56,7 +56,7 @@ WSL needs WSLg or a working X server. The Turtle study uses the standard library
 
 ## Controls
 
-In the Pygame sketches, press **Space** to pause, **R** to restart, **S** to save a PNG beside the script, or **Esc** to exit. Close the Turtle window to exit. **M** toggles sound and **F** toggles fullscreen in Jellyfish, Galactic Star Nursery, Dream, Birth Flower, and Backroom.
+In the Pygame sketches, press **Space** to pause, **R** to restart, **S** to save a PNG beside the script, or **Esc** to exit. Close the Turtle window to exit. **M** toggles sound and **F** toggles fullscreen in Jellyfish, Galactic Star Nursery, Dream, Birth Flower, Backroom, and Salt Signal.
 
 | Sketch | Additional controls |
 | :--- | :--- |
@@ -65,4 +65,4 @@ In the Pygame sketches, press **Space** to pause, **R** to restart, **S** to sav
 | Dream Sweet in Sea Major | **Left-drag** to shift the view. **Right-click** for a shooting star and a wave. **E** toggles the emblem. |
 | Birth Flower | **D** opens date entry. Type a date such as `Nov 15` and press **Enter**. **Up/Down** change the day, **Tab** advances the month, and **Left/Right** or **left-drag** orbit. |
 | Backroom | **Left-drag** to look around. Hold **right-click** for a fluorescent surge. |
-| Salt Signal | **Hold the left mouse button** and move the pointer to steer the beam. Release to return to the automatic sweep. |
+| Salt Signal | **Hold the left mouse button** and drag to steer the beam. **Right-click** to blast the foghorn and trigger a storm surge. |
