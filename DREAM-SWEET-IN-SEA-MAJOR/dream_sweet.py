@@ -1,12 +1,16 @@
 # Dream Sweet in Sea Major — Kobsi · 2026
 # Kobsi · @Kobsi17 · 2026. Free for learning and personal projects. See LICENSE.txt.
 # Don't repost it or sell it as your own, and don't use it to train AI models.
+import math
 import sys
 import time
 from pathlib import Path
+
 import numpy as np
 import pygame
 
+SIGN = "Kobsi · 2026"
+TITLE = "Hawaii: Part II — Dream Sweet in Sea Major — Kobsi · 2026"
 TAU = np.pi * 2.0
 
 
@@ -41,28 +45,30 @@ class DreamSweetAudio:
         n = int(sr * dur)
         tt = np.arange(n, dtype=np.float32) / sr
 
-        # Soft rolling ocean waves
+        # Soft rolling ocean waves with dual-layer surf swell
         white = rng.normal(0.0, 1.0, n).astype(np.float32)
-        surf = np.convolve(white, np.ones(200, dtype=np.float32) / 200.0, mode="same")
-        surf_env = 0.036 * (0.55 + 0.45 * np.sin(TAU * (1.0 / (dur / 3.0)) * tt))
-        buf = surf * surf_env
+        surf_low = np.convolve(white, np.ones(260, dtype=np.float32) / 260.0, mode="same")
+        surf_foam = np.convolve(white, np.ones(65, dtype=np.float32) / 65.0, mode="same")
+        swell = 0.55 + 0.45 * np.sin(TAU * (3.0 / dur) * tt)
+        buf = surf_low * (0.042 * swell) + surf_foam * (0.012 * (swell ** 2))
 
-        # Warm lush string/organ pad underneath the waltz
+        # Warm lush string/organ pad underneath the waltz (Fmaj7 -> Em7 -> Dm7 -> Cmaj7)
         chords = [
-            (0,  12, [53, 60, 64, 69]),  # Fmaj7 ("Alone at the edge...")
-            (12, 12, [52, 59, 64, 67]),  # Em7   ("...of a universe...")
-            (24, 12, [50, 57, 60, 65]),  # Dm7   ("...humming a tune...")
-            (36, 12, [48, 55, 60, 64]),  # Cmaj7 ("...dreaming we were snow...")
+            (0,  12, [41, 53, 60, 64, 69]),  # Fmaj7 ("Alone at the edge...")
+            (12, 12, [40, 52, 59, 64, 67]),  # Em7   ("...of a universe...")
+            (24, 12, [38, 50, 57, 60, 65]),  # Dm7   ("...humming a tune...")
+            (36, 12, [36, 48, 55, 60, 64]),  # Cmaj7 ("...dreaming we were snow...")
         ]
         for b0, blen, notes in chords:
             i0 = int(b0 * beat * sr)
             i1 = min(n, int((b0 + blen) * beat * sr))
             seg_t = np.arange(i1 - i0, dtype=np.float32) / sr
-            pad_env = np.sin(np.pi * np.clip(seg_t / (blen * beat), 0.0, 1.0)) ** 0.65
-            for m in notes:
+            pad_env = np.sin(np.pi * np.clip(seg_t / (blen * beat), 0.0, 1.0)) ** 0.60
+            for idx_n, m in enumerate(notes):
                 f = 440.0 * (2.0 ** ((m - 69) / 12.0))
-                vibrato = 1.0 + 0.0018 * np.sin(TAU * 4.5 * seg_t)
-                buf[i0:i1] += np.sin(TAU * f * vibrato * seg_t) * pad_env * 0.024
+                vibrato = 1.0 + 0.0018 * np.sin(TAU * 4.2 * seg_t + idx_n)
+                amp = 0.026 if idx_n == 0 else 0.021
+                buf[i0:i1] += np.sin(TAU * f * vibrato * seg_t) * pad_env * amp
 
         # "Dream Sweet in Sea Major" 3/4 celesta & music-box melody
         melody = [
@@ -82,16 +88,16 @@ class DreamSweetAudio:
 
         for midi, b_start, b_len in melody:
             i0 = int(b_start * beat * sr)
-            ring = min(n - i0, int(sr * (b_len * beat + 1.5)))
+            ring = min(n - i0, int(sr * (b_len * beat + 1.8)))
             tm = np.arange(ring, dtype=np.float32) / sr
             f = 440.0 * (2.0 ** ((midi - 69) / 12.0))
-            env = np.exp(-tm * 1.75) * (1.0 - np.exp(-tm * 150.0))
+            env = np.exp(-tm * 1.65) * (1.0 - np.exp(-tm * 150.0))
             celesta = (
-                0.74 * np.sin(TAU * f * tm)
-                + 0.19 * np.sin(TAU * f * 2.0 * tm) * np.exp(-tm * 4.8)
-                + 0.07 * np.sin(TAU * f * 4.0 * tm) * np.exp(-tm * 11.0)
+                0.72 * np.sin(TAU * f * tm)
+                + 0.20 * np.sin(TAU * f * 2.0 * tm) * np.exp(-tm * 4.5)
+                + 0.08 * np.sin(TAU * f * 4.0 * tm) * np.exp(-tm * 10.5)
             )
-            buf[i0:i0 + ring] += celesta * env * 0.095
+            buf[i0:i0 + ring] += celesta * env * 0.092
 
         # Gentle 3/4 waltz harp arpeggio
         waltz_bars = [
@@ -101,31 +107,32 @@ class DreamSweetAudio:
             (36, 55, 60), (36, 55, 60), (36, 55, 60), (36, 55, 60),
         ]
         for bar_idx, (b1, b2, b3) in enumerate(waltz_bars):
-            for sub_b, m_note, amp in ((0.0, b1, 0.055), (1.0, b2, 0.036), (2.0, b3, 0.036)):
+            for sub_b, m_note, amp in ((0.0, b1, 0.052), (1.0, b2, 0.035), (2.0, b3, 0.035)):
                 i0 = int((bar_idx * 3.0 + sub_b) * beat * sr)
-                ring = min(n - i0, int(sr * 1.15))
+                ring = min(n - i0, int(sr * 1.25))
                 tm = np.arange(ring, dtype=np.float32) / sr
                 f = 440.0 * (2.0 ** ((m_note - 69) / 12.0))
-                env = np.exp(-tm * 2.6) * (1.0 - np.exp(-tm * 110.0))
-                buf[i0:i0 + ring] += np.sin(TAU * f * tm) * env * amp
+                env = np.exp(-tm * 2.4) * (1.0 - np.exp(-tm * 110.0))
+                tone = 0.85 * np.sin(TAU * f * tm) + 0.15 * np.sin(TAU * f * 2.0 * tm) * np.exp(-tm * 5.0)
+                buf[i0:i0 + ring] += tone * env * amp
 
         fade = np.linspace(0.0, 1.0, int(sr * 0.35), dtype=np.float32)
         buf[:len(fade)] *= fade
         buf[-len(fade):] *= fade[::-1]
 
         left = np.clip(buf * 32767, -32767, 32767).astype(np.int16)
-        right = np.roll(left, 420)
+        right = np.roll(left, 440)
         self.loop_sound = pygame.sndarray.make_sound(np.column_stack((left, right)))
 
         # Shooting-star crystalline chime
-        c_n = int(sr * 2.2)
+        c_n = int(sr * 2.4)
         chime = np.zeros(c_n, dtype=np.float32)
-        for idx, f in enumerate([659.25, 880.0, 1046.5, 1318.5, 1567.98]):
-            d = int(idx * 0.065 * sr)
+        for idx, f in enumerate([659.25, 880.0, 1046.5, 1318.5, 1567.98, 2093.0]):
+            d = int(idx * 0.058 * sr)
             tc = np.arange(c_n - d, dtype=np.float32) / sr
-            chime[d:] += np.sin(TAU * f * tc) * np.exp(-tc * 2.4) * (1.0 - np.exp(-tc * 150.0)) * 0.085
+            chime[d:] += np.sin(TAU * f * tc) * np.exp(-tc * 2.2) * (1.0 - np.exp(-tc * 150.0)) * 0.072
         ci16 = np.clip(chime * 32767, -32767, 32767).astype(np.int16)
-        self.star_chime = pygame.sndarray.make_sound(np.column_stack((ci16, np.roll(ci16, 200))))
+        self.star_chime = pygame.sndarray.make_sound(np.column_stack((ci16, np.roll(ci16, 220))))
 
     def start(self):
         if self.enabled and self.loop_sound is not None:
@@ -141,7 +148,7 @@ class DreamSweetAudio:
             self.loop_sound.set_volume(0.0 if self.muted else 1.0)
 
 
-# --- Analytical Sky, Volumetric God-Rays & Ocean Wave Pixel Shader ---
+# --- Analytical Sky, Drifting Clouds, Volumetric God-Rays & Fresnel Ocean ---
 class BackdropShader:
     def __init__(self, sh_w, sh_h):
         self.sw = sh_w
@@ -151,142 +158,162 @@ class BackdropShader:
         self.ny = yy / sh_h
         self.aspect = sh_w / sh_h
 
-        # Precompute crater texture for the full moon
-        self.crater_seed_x = xx * 0.19
-        self.crater_seed_y = yy * 0.19
+        rng = np.random.default_rng(17)
+        self.grain = rng.uniform(-0.008, 0.008, size=(sh_h, sh_w)).astype(np.float32)
 
     def render(self, surf, t, user_yaw, user_pitch, wave_pulse):
-        horizon_y = float(np.clip(0.565 + user_pitch * 0.32, 0.42, 0.70))
+        horizon_y = float(np.clip(0.565 + user_pitch * 0.30, 0.42, 0.70))
         cam_shift_x = user_yaw * 0.28
 
-        # Sky vs. Ocean masks with soft atmospheric horizon blend
         is_sky = self.ny < horizon_y
         sky_h = np.clip((horizon_y - self.ny) / max(horizon_y, 0.05), 0.0, 1.0)
 
         # Base vertical gradient: deep obsidian zenith -> misty silver-slate horizon
         base_lum = np.where(
             is_sky,
-            0.035 + 0.19 * ((1.0 - sky_h) ** 2.6),
-            0.025 + 0.05 * np.exp(-((self.ny - horizon_y) / 0.06) ** 2),
+            0.028 + 0.21 * ((1.0 - sky_h) ** 2.5),
+            0.020 + 0.055 * np.exp(-((self.ny - horizon_y) / 0.055) ** 2),
         )
 
-        # Volumetric diagonal god-rays slanting down from top-left (matching cover art)
+        # Drifting atmospheric night clouds across the upper sky
+        cloud_vis = smooth(t / 2.6)
+        if cloud_vis > 0.001:
+            cx = self.nx * 4.2 + cam_shift_x * 0.6 + t * 0.018
+            cy = self.ny * 8.5
+            clouds = (
+                0.50 * np.sin(cx * 2.1 + np.cos(cy * 1.4))
+                + 0.30 * np.cos(cx * 4.3 - cy * 2.2 + t * 0.03)
+                + 0.20 * np.sin(cx * 7.8 + cy * 3.9 - t * 0.02)
+            )
+            clouds = np.clip(clouds * 0.5 + 0.5, 0.0, 1.0) ** 1.8
+            cloud_band = np.exp(-((self.ny - (horizon_y - 0.16)) / 0.22) ** 2)
+            base_lum += cloud_vis * is_sky * clouds * cloud_band * 0.085
+
+        # Volumetric diagonal god-rays slanting down from top-left (cover-art signature)
         ray_vis = smooth((t - 1.2) / 2.4)
         if ray_vis > 0.001:
-            diag = (self.nx - 0.03 - cam_shift_x * 0.4) - (self.ny - 0.02) * 0.76
-            b1 = np.exp(-((diag - 0.13) / 0.085) ** 2)
-            b2 = 0.78 * np.exp(-((diag - 0.28) / 0.058) ** 2)
-            b3 = 0.62 * np.exp(-((diag + 0.03) / 0.072) ** 2)
-            b4 = 0.40 * np.exp(-((diag - 0.41) / 0.048) ** 2)
-            falloff = np.exp(-((self.nx * 0.75 + self.ny * 1.15)))
-            shimmer = 0.90 + 0.10 * np.sin(18.0 * diag - 0.55 * t)
-            rays = ray_vis * is_sky * falloff * shimmer * (b1 + b2 + b3 + b4) * 0.36
+            diag = (self.nx - 0.02 - cam_shift_x * 0.4) - (self.ny - 0.02) * 0.78
+            b1 = np.exp(-((diag - 0.12) / 0.080) ** 2)
+            b2 = 0.82 * np.exp(-((diag - 0.27) / 0.055) ** 2)
+            b3 = 0.65 * np.exp(-((diag + 0.04) / 0.068) ** 2)
+            b4 = 0.45 * np.exp(-((diag - 0.40) / 0.045) ** 2)
+            b5 = 0.30 * np.exp(-((diag - 0.52) / 0.038) ** 2)
+            falloff = np.exp(-(self.nx * 0.72 + self.ny * 1.12))
+            shimmer = 0.88 + 0.12 * np.sin(17.0 * diag - 0.52 * t)
+            rays = ray_vis * is_sky * falloff * shimmer * (b1 + b2 + b3 + b4 + b5) * 0.36
             base_lum += rays
 
-        # Full Moon + Lunar Maria Craters + Atmospheric Halo (Upper Right)
+        # Full Moon + Lunar Maria + Atmospheric Corona (Upper Right)
         moon_vis = smooth(t / 2.2)
-        mx = 0.645 - cam_shift_x * 0.65
+        mx = 0.655 - cam_shift_x * 0.65
         my = horizon_y - 0.335
         dx_m = (self.nx - mx) * self.aspect
         dy_m = self.ny - my
         dist_m = np.hypot(dx_m, dy_m)
-        moon_r = 0.092
+        moon_r = 0.094
 
-        # Soft outer lunar corona
-        halo = moon_vis * is_sky * (0.26 * np.exp(-(dist_m / 0.24) ** 2) + 0.12 * np.exp(-(dist_m / 0.45) ** 2))
+        # Multi-layered soft lunar corona
+        halo = moon_vis * is_sky * (
+            0.28 * np.exp(-(dist_m / 0.22) ** 2)
+            + 0.14 * np.exp(-(dist_m / 0.46) ** 2)
+        )
         base_lum += halo
 
-        # Crisp moon disc with subtle crater shading
+        # Crisp moon disc with detailed maria & crater relief
         in_moon = dist_m <= moon_r
         if np.any(in_moon):
             u_m = dx_m / moon_r
             v_m = dy_m / moon_r
             maria = (
-                0.10 * np.sin(u_m * 4.2 + 0.6) * np.cos(v_m * 3.8 - 0.4)
-                + 0.07 * np.cos((u_m - v_m) * 7.5)
-                + 0.05 * np.sin((u_m + v_m) * 12.0)
+                0.11 * np.sin(u_m * 4.0 + 0.6) * np.cos(v_m * 3.6 - 0.4)
+                + 0.08 * np.cos((u_m - v_m) * 7.2 + 0.3)
+                + 0.05 * np.sin((u_m + v_m) * 13.0)
+                + 0.03 * np.cos(u_m * 19.0 - v_m * 16.0)
             )
-            limb = np.sqrt(np.clip(1.0 - (dist_m / moon_r) ** 2, 0.0, 1.0)) ** 0.22
-            moon_disc = moon_vis * np.clip((0.92 + maria) * limb, 0.68, 1.04)
+            limb = np.sqrt(np.clip(1.0 - (dist_m / moon_r) ** 2, 0.0, 1.0)) ** 0.24
+            moon_disc = moon_vis * np.clip((0.92 + maria) * limb, 0.66, 1.04)
             base_lum = np.where(in_moon, np.maximum(base_lum, moon_disc), base_lum)
 
         # Continuous Fresnel Ocean Waves & Shimmering Moonlight Path
         sea_vis = smooth((t - 0.5) / 2.2)
         if sea_vis > 0.001:
             sea_depth = np.clip((self.ny - horizon_y) / max(1.0 - horizon_y, 0.05), 0.002, 1.0)
-            # Perspective-foreshortened wave coordinates (tighter ripples near horizon, wider in foreground)
-            z_persp = 1.0 / (sea_depth + 0.045)
-            x_persp = (self.nx - 0.5 + cam_shift_x) * z_persp * 0.42
+            z_persp = 1.0 / (sea_depth + 0.042)
+            x_persp = (self.nx - 0.5 + cam_shift_x) * z_persp * 0.44
 
-            w1 = np.sin(x_persp * 6.5 + z_persp * 2.4 - 1.5 * t)
-            w2 = np.cos(x_persp * 11.0 - z_persp * 3.1 - 1.9 * t)
-            w3 = np.sin(z_persp * 4.6 - 2.3 * t + 1.2 * np.sin(x_persp * 3.0))
-            wave_slope = 0.45 * w1 + 0.35 * w2 + 0.55 * w3
+            w1 = np.sin(x_persp * 6.8 + z_persp * 2.5 - 1.45 * t)
+            w2 = np.cos(x_persp * 11.5 - z_persp * 3.2 - 1.85 * t)
+            w3 = np.sin(z_persp * 4.8 - 2.25 * t + 1.25 * np.sin(x_persp * 3.1))
+            wave_slope = 0.44 * w1 + 0.34 * w2 + 0.56 * w3
 
             if wave_pulse > 0.01:
-                r_p = np.hypot((self.nx - 0.45) * self.aspect, (self.ny - 0.74) * 1.8)
-                ring_r = (1.0 - wave_pulse) * 0.95
-                wave_slope += 1.6 * wave_pulse * np.exp(-((r_p - ring_r) / 0.055) ** 2) * np.sin(45.0 * (r_p - ring_r))
+                r_p = np.hypot((self.nx - 0.48) * self.aspect, (self.ny - 0.74) * 1.8)
+                ring_r = (1.0 - wave_pulse) * 0.98
+                wave_slope += 1.65 * wave_pulse * np.exp(-((r_p - ring_r) / 0.052) ** 2) * np.sin(46.0 * (r_p - ring_r))
 
             # Moonlight specular path under the upper-right moon
             moon_col_dist = np.abs(self.nx - mx)
-            path_width = 0.055 + 0.14 * sea_depth
+            path_width = 0.048 + 0.145 * sea_depth
             moon_path = np.exp(-((moon_col_dist / path_width) ** 2))
-            specular = np.clip(wave_slope, 0.0, 1.8) ** 1.7
+            specular = np.clip(wave_slope, 0.0, 1.9) ** 1.75
+            glitter = (np.clip(wave_slope, 0.0, 1.8) ** 4.2) * moon_path * 0.38
 
-            # Crisp horizon silver line + dark obsidian swells with silver crests
-            horizon_glow = np.exp(-((self.ny - horizon_y) / 0.006) ** 2) * 0.32
+            horizon_glow = np.exp(-((self.ny - horizon_y) / 0.005) ** 2) * 0.34
+            # Soft horizon sea mist
+            sea_mist = np.exp(-((self.ny - horizon_y) / 0.032) ** 2) * 0.065
             ocean_lum = sea_vis * (
-                0.022
+                0.018
                 + horizon_glow
-                + (0.045 + 0.24 * moon_path) * specular * (0.35 + 0.65 * sea_depth)
+                + sea_mist
+                + (0.040 + 0.24 * moon_path) * specular * (0.35 + 0.65 * sea_depth)
+                + glitter
             )
             base_lum = np.where(~is_sky, ocean_lum, base_lum)
 
-        # Subtle cool monochrome blue-silver tint
-        lum = np.clip(base_lum, 0.0, 1.0)
+        # Painterly silver-slate monochrome with subtle lunar blue-indigo undertone
+        lum = np.clip(base_lum + self.grain, 0.0, 1.0)
         rgb = np.empty((self.sh, self.sw, 3), dtype=np.uint8)
-        rgb[..., 0] = np.clip(lum * 238.0, 0, 255).astype(np.uint8)
-        rgb[..., 1] = np.clip(lum * 244.0, 0, 255).astype(np.uint8)
-        rgb[..., 2] = np.clip(lum * 255.0, 0, 255).astype(np.uint8)
+        rgb[..., 0] = np.clip(lum * 228.0, 0, 255).astype(np.uint8)
+        rgb[..., 1] = np.clip(lum * 238.0, 0, 255).astype(np.uint8)
+        rgb[..., 2] = np.clip(lum * 254.0, 0, 255).astype(np.uint8)
 
         small_surf = pygame.surfarray.make_surface(rgb.transpose(1, 0, 2))
         pygame.transform.smoothscale(small_surf, surf.get_size(), surf)
         return horizon_y, cam_shift_x, (mx, my)
 
 
-# --- 3D Twisted Escher Staircase Polygons, Silhouetted Palms & Ghostly Anglerfish ---
+# --- Painterly Foreground: Island, Palms, Orca, Ghostly Anglerfish, Snow & 3D Escher Staircase ---
 class PaintedElements:
     def __init__(self):
         rng = np.random.default_rng(2026)
 
-        # 1. Crisp Stars & Dust Motes in the Light Beams
-        n_stars = 260
+        # 1. Crisp Stars & Drifting Snow/Motes ("For merely dreaming we were snow")
+        n_stars = 280
         self.star_nx = rng.uniform(0.01, 0.99, n_stars)
         self.star_ny = rng.uniform(0.01, 0.54, n_stars)
         self.star_r = rng.choice([1, 1, 1, 2], size=n_stars)
         self.star_ph = rng.uniform(0.0, TAU, n_stars)
 
-        n_motes = 95
-        self.mote_nx = rng.uniform(0.04, 0.62, n_motes)
-        self.mote_ny = rng.uniform(0.04, 0.52, n_motes)
+        n_motes = 130
+        self.mote_nx = rng.uniform(0.02, 0.95, n_motes)
+        self.mote_ny = rng.uniform(0.03, 0.88, n_motes)
+        self.mote_sp = rng.uniform(0.008, 0.024, n_motes)
         self.mote_ph = rng.uniform(0.0, TAU, n_motes)
 
-        # 2. Precompute 13 Twisted 3D Stair Slabs (each slab is a 3D rectangular prism)
+        # 2. Precompute 20 Sculpted 3D Escher Stair Slabs rising out of the sea mist
         self.slabs = []
-        n_slabs = 13
+        n_slabs = 20
         for k in range(n_slabs):
-            frac = k / (n_slabs - 1)  # 0 = foreground bottom-right, 1 = midground left
-            cx = 0.24 - frac * 1.18
-            cy = -0.35 + frac * 0.345
-            cz = -0.52 + frac * 1.38
-            twist = -0.46 + frac * 0.60 + 0.14 * np.sin(frac * 5.2)
-            w = 0.46 - frac * 0.12
-            d = 0.135
-            h = 0.038
+            frac = k / (n_slabs - 1)  # 0 = foreground bottom-right, 1 = high skyward left
+            cx = 0.28 - frac * 1.18 + 0.08 * math.sin(frac * 3.1)
+            cy = -0.38 + frac * 0.42
+            cz = -0.58 + frac * 1.55
+            twist = -0.52 + frac * 0.72 + 0.16 * math.sin(frac * 5.0)
+            w = 0.46 - frac * 0.15
+            d = 0.12
+            h = 0.034
 
-            ct, st = np.cos(twist), np.sin(twist)
-            # 4 top corners & 4 bottom corners in 3D
+            ct, st = math.cos(twist), math.sin(twist)
             corners_local = [
                 (-w * 0.5, 0.0, -d * 0.5),  # 0: front-left top
                 ( w * 0.5, 0.0, -d * 0.5),  # 1: front-right top
@@ -305,7 +332,7 @@ class PaintedElements:
                 pts3d.append((wx, wy, wz))
             self.slabs.append((frac, pts3d))
 
-    def draw_stars_and_motes(self, screen, t, horizon_y, cam_shift_x, shoot_timer):
+    def draw_stars_and_snow(self, screen, t, horizon_y, cam_shift_x, shoot_timer):
         w, h = screen.get_size()
         sky_vis = smooth(t / 2.2)
         if sky_vis <= 0.01:
@@ -316,198 +343,242 @@ class PaintedElements:
                 continue
             sx = int(((self.star_nx[i] - cam_shift_x * 0.35) % 1.0) * w)
             sy = int(self.star_ny[i] * h)
-            tw = (0.50 + 0.50 * np.sin(1.9 * t + self.star_ph[i])) * sky_vis
+            tw = (0.48 + 0.52 * math.sin(1.85 * t + self.star_ph[i])) * sky_vis
             val = max(0, min(255, int(245 * tw)))
             r = int(self.star_r[i])
             if r == 1:
-                screen.set_at((sx, sy), (val, val, min(255, val + 10)))
+                screen.set_at((sx, sy), (val, val, min(255, val + 12)))
             else:
-                pygame.draw.circle(screen, (val, val, min(255, val + 12)), (sx, sy), 2)
-                if tw > 0.85:
+                pygame.draw.circle(screen, (val, val, min(255, val + 14)), (sx, sy), 2)
+                if tw > 0.84:
                     pygame.draw.line(screen, (val // 2, val // 2, val // 2), (sx - 4, sy), (sx + 4, sy), 1)
                     pygame.draw.line(screen, (val // 2, val // 2, val // 2), (sx, sy - 4), (sx, sy + 4), 1)
 
-        # Floating dust motes drifting inside the diagonal light rays
-        ray_vis = smooth((t - 1.5) / 2.5)
-        if ray_vis > 0.01:
+        # Floating snow / luminous dust motes drifting softly through the beams
+        mote_vis = smooth((t - 1.5) / 2.5)
+        if mote_vis > 0.01:
+            mote_layer = pygame.Surface((w, h), pygame.SRCALPHA)
             for i in range(len(self.mote_nx)):
-                mx = int((self.mote_nx[i] + 0.012 * np.sin(0.5 * t + self.mote_ph[i])) * w)
-                my = int((self.mote_ny[i] + 0.010 * np.cos(0.4 * t + self.mote_ph[i])) * h)
-                if my >= int(horizon_y * h):
-                    continue
-                b = int(175 * ray_vis * (0.35 + 0.65 * np.sin(1.6 * t + self.mote_ph[i]) ** 2))
-                pygame.draw.circle(screen, (b, b, min(255, b + 15)), (mx, my), 1)
+                mx = int(((self.mote_nx[i] + 0.015 * math.sin(0.45 * t + self.mote_ph[i]) - cam_shift_x * 0.25) % 1.0) * w)
+                my = int(((self.mote_ny[i] + self.mote_sp[i] * t * 0.4) % 1.0) * h)
+                tw = 0.25 + 0.75 * (math.sin(1.5 * t + self.mote_ph[i]) ** 2)
+                alpha = int(175 * mote_vis * tw)
+                if alpha > 12:
+                    pygame.draw.circle(mote_layer, (235, 242, 255, alpha), (mx, my), 1)
+            screen.blit(mote_layer, (0, 0))
 
-        # Shooting star streak
+        # Shooting star streak (auto every ~15s or on right-click)
         auto_cycle = (t % 15.0) / 1.35
         s_prog = shoot_timer if shoot_timer >= 0.0 else (auto_cycle if auto_cycle < 1.0 else -1.0)
         if 0.0 <= s_prog <= 1.0:
-            hx = int((0.78 - s_prog * 0.56) * w)
-            hy = int((0.10 + s_prog * 0.22) * h)
-            tx = int((0.78 - max(0.0, s_prog - 0.16) * 0.56) * w)
-            ty = int((0.10 + max(0.0, s_prog - 0.16) * 0.22) * h)
-            fade = np.sin(np.pi * s_prog)
-            col_head = (int(255 * fade), int(248 * fade), int(220 * fade))
+            hx = int((0.80 - s_prog * 0.58) * w)
+            hy = int((0.09 + s_prog * 0.23) * h)
+            tx = int((0.80 - max(0.0, s_prog - 0.18) * 0.58) * w)
+            ty = int((0.09 + max(0.0, s_prog - 0.18) * 0.23) * h)
+            fade = math.sin(math.pi * s_prog)
+            col_head = (int(255 * fade), int(250 * fade), int(230 * fade))
             pygame.draw.line(screen, col_head, (tx, ty), (hx, hy), 2)
             pygame.draw.circle(screen, col_head, (hx, hy), 3)
 
-    def draw_ghost_anglerfish(self, screen, t, moon_uv, horizon_y):
-        """Draw the translucent ghostly abyssal anglerfish jaws & needle teeth beside the moon."""
-        angler_vis = smooth((t - 5.2) / 3.2)
+    def draw_ghost_anglerfish(self, screen, t, moon_uv):
+        """Draw the ethereal spectral abyssal anglerfish with glowing esca & needle teeth beside the moon."""
+        angler_vis = smooth((t - 5.0) / 3.0)
         if angler_vis <= 0.01:
             return
         w, h = screen.get_size()
         layer = pygame.Surface((w, h), pygame.SRCALPHA)
 
         mx, my = moon_uv
-        drift_x = 0.005 * np.cos(0.55 * t)
-        drift_y = 0.008 * np.sin(0.70 * t)
-        ox = (mx + 0.045 + drift_x) * w
-        oy = (my + 0.020 + drift_y) * h
+        drift_x = 0.006 * math.cos(0.48 * t)
+        drift_y = 0.009 * math.sin(0.62 * t)
+        ox = (mx + 0.042 + drift_x) * w
+        oy = (my + 0.015 + drift_y) * h
         sc = h / 860.0
 
-        alpha_body = int(42 * angler_vis)
-        alpha_rim = int(78 * angler_vis)
-        alpha_tooth = int(125 * angler_vis)
+        # Smooth organic spectral cranium & gaping jaw (48-point parametric silhouette)
+        def smooth_body(scale_pad=1.0):
+            pts = []
+            # Upper dome from snout around back of head to tail/neck
+            for i in range(28):
+                u = i / 27.0
+                ang = math.pi * (1.05 - u * 1.45)  # ~190 deg to -72 deg
+                rx = 152 * scale_pad
+                ry = 148 * scale_pad
+                cx = ox + 148 * sc
+                cy = oy + 14 * sc
+                px = cx + math.cos(ang) * rx * sc
+                py = cy - math.sin(ang) * ry * sc
+                pts.append((int(px), int(py)))
+            # Lower jaw curving forward
+            for i in range(16):
+                u = i / 15.0
+                px = ox + (200 - u * 142) * sc
+                py = oy + (152 + 34 * math.sin(u * math.pi) - u * 14) * sc
+                pts.append((int(px), int(py)))
+            # Inner throat curve back to upper jaw
+            for i in range(10):
+                u = i / 9.0
+                px = ox + (110 + 44 * math.sin(u * math.pi)) * sc
+                py = oy + (125 - u * 155) * sc
+                pts.append((int(px), int(py)))
+            return pts
 
-        # Soft translucent head & open maw silhouette
-        skull_poly = [
-            (ox + 15 * sc, oy - 35 * sc),
-            (ox + 85 * sc, oy - 115 * sc),
-            (ox + 185 * sc, oy - 135 * sc),
-            (ox + 265 * sc, oy - 75 * sc),
-            (ox + 285 * sc, oy + 45 * sc),
-            (ox + 235 * sc, oy + 145 * sc),
-            (ox + 145 * sc, oy + 185 * sc),
-            (ox + 55 * sc, oy + 140 * sc),
-            (ox + 115 * sc, oy + 85 * sc),
-            (ox + 145 * sc, oy + 10 * sc),
-            (ox + 105 * sc, oy - 35 * sc),
-        ]
-        pygame.draw.polygon(layer, (185, 195, 210, alpha_body), [(int(x), int(y)) for x, y in skull_poly])
-        pygame.draw.aalines(layer, (215, 224, 238, alpha_rim), False, [(int(x), int(y)) for x, y in skull_poly[:7]])
+        pygame.draw.polygon(layer, (186, 200, 224, int(18 * angler_vis)), smooth_body(1.06))
+        pygame.draw.polygon(layer, (192, 206, 228, int(28 * angler_vis)), smooth_body(1.0))
 
-        # Faint sunken eye socket
-        pygame.draw.circle(layer, (28, 32, 40, int(65 * angler_vis)), (int(ox + 135 * sc), int(oy - 62 * sc)), int(14 * sc))
-        pygame.draw.circle(layer, (215, 224, 238, int(55 * angler_vis)), (int(ox + 135 * sc), int(oy - 62 * sc)), int(14 * sc), 1)
+        # Translucent pectoral fin rays trailing behind
+        for r_i in range(7):
+            ang = 0.30 + r_i * 0.13 + 0.04 * math.sin(t * 1.3 + r_i)
+            fx0, fy0 = ox + 215 * sc, oy + 38 * sc
+            fx1 = fx0 + math.cos(ang) * (82 - r_i * 6) * sc
+            fy1 = fy0 + math.sin(ang) * (82 - r_i * 6) * sc
+            pygame.draw.aaline(layer, (210, 222, 242, int(44 * angler_vis)), (fx0, fy0), (fx1, fy1))
 
-        # Curved upper & lower needle-tooth rows (signature cover detail)
-        for idx in range(15):
-            u = idx / 14.0
-            # Upper jaw teeth curving downward
-            ux = ox + (24 + u * 135) * sc
-            uy = oy + (-34 - 16 * np.sin(u * np.pi)) * sc
-            t_len = (24 + 22 * np.sin(u * np.pi)) * sc
+        # Sunken abyssal eye socket
+        eye_x, eye_y = int(ox + 132 * sc), int(oy - 62 * sc)
+        pygame.draw.circle(layer, (18, 24, 34, int(78 * angler_vis)), (eye_x, eye_y), int(14 * sc))
+        pygame.draw.circle(layer, (218, 228, 244, int(60 * angler_vis)), (eye_x, eye_y), int(14 * sc), 1)
+
+        # Gracefully arched illicium (stalk) & glowing bioluminescent esca (lure)
+        stalk_pts = []
+        sway = 8.0 * sc * math.sin(1.25 * t)
+        for j in range(18):
+            u = j / 17.0
+            sx = ox + (82 - u * 124) * sc + (u ** 1.6) * sway
+            sy = oy + (-102 - math.sin(u * math.pi) * 48 + u * 84) * sc
+            stalk_pts.append((int(sx), int(sy)))
+        pygame.draw.aalines(layer, (220, 234, 250, int(92 * angler_vis)), False, stalk_pts)
+        lure_x, lure_y = stalk_pts[-1]
+        lure_pulse = 0.72 + 0.28 * math.sin(2.4 * t)
+        pygame.draw.circle(layer, (180, 232, 255, int(46 * angler_vis * lure_pulse)), (lure_x, lure_y), int(16 * sc))
+        pygame.draw.circle(layer, (240, 250, 255, int(185 * angler_vis * lure_pulse)), (lure_x, lure_y), int(4 * sc))
+
+        # Curved upper & lower needle-tooth rows
+        alpha_tooth = int(130 * angler_vis)
+        for idx in range(16):
+            u = idx / 15.0
+            ux = ox + (24 + u * 134) * sc
+            uy = oy + (-34 - 16 * math.sin(u * math.pi)) * sc
+            t_len = (20 + 25 * math.sin(u * math.pi)) * sc
             tip_ux = ux + (4 + 8 * u) * sc
             tip_uy = uy + t_len
             pygame.draw.polygon(
                 layer,
-                (235, 240, 248, alpha_tooth),
-                [(int(ux - 2.2 * sc), int(uy)), (int(ux + 2.2 * sc), int(uy)), (int(tip_ux), int(tip_uy))],
+                (238, 244, 252, alpha_tooth),
+                [(int(ux - 1.8 * sc), int(uy)), (int(ux + 1.8 * sc), int(uy)), (int(tip_ux), int(tip_uy))],
             )
 
-            # Lower jaw teeth curving upward
-            lx = ox + (52 + u * 125) * sc
-            ly = oy + (135 + 28 * np.sin(u * np.pi)) * sc
-            l_len = (24 + 24 * np.sin(u * np.pi)) * sc
+            lx = ox + (52 + u * 124) * sc
+            ly = oy + (136 + 28 * math.sin(u * math.pi)) * sc
+            l_len = (20 + 25 * math.sin(u * math.pi)) * sc
             tip_lx = lx - (5 + 6 * u) * sc
             tip_ly = ly - l_len
             pygame.draw.polygon(
                 layer,
-                (235, 240, 248, alpha_tooth),
-                [(int(lx - 2.2 * sc), int(ly)), (int(lx + 2.2 * sc), int(ly)), (int(tip_lx), int(tip_ly))],
+                (238, 244, 252, alpha_tooth),
+                [(int(lx - 1.8 * sc), int(ly)), (int(lx + 1.8 * sc), int(ly)), (int(tip_lx), int(tip_ly))],
             )
 
         screen.blit(layer, (0, 0))
 
-    def draw_orca_fin(self, screen, t, horizon_y, cam_shift_x):
-        """Draw the dark orca dorsal fin silhouette on the far-left horizon."""
-        fin_vis = smooth((t - 1.0) / 2.2)
-        if fin_vis <= 0.01:
+    def draw_island_and_orca(self, screen, t, horizon_y, cam_shift_x):
+        """Draw the dark volcanic headland under the palms and the sleek orca dorsal fin on the horizon."""
+        land_vis = smooth((t - 0.9) / 2.2)
+        if land_vis <= 0.01:
             return
         w, h = screen.get_size()
-        fx = (0.145 - cam_shift_x * 0.5) * w
-        fy = horizon_y * h + 2
-        sc = (h / 860.0) * fin_vis
-        bob = 2.0 * np.sin(1.3 * t)
+        hy = horizon_y * h + 2
+        sc = (h / 860.0) * land_vis
 
-        fin_pts = [
-            (fx - 34 * sc, fy),
-            (fx - 12 * sc, fy - 8 * sc + bob),
-            (fx - 2 * sc, fy - 38 * sc + bob),
-            (fx + 6 * sc, fy - 36 * sc + bob),
-            (fx + 14 * sc, fy - 10 * sc + bob),
-            (fx + 46 * sc, fy),
+        # Distant volcanic island / spit grounding the two palms
+        ix = (0.295 - cam_shift_x * 0.72) * w
+        island_pts = [
+            (ix - 175 * sc, hy + 2),
+            (ix - 125 * sc, hy - 14 * sc),
+            (ix - 58 * sc, hy - 28 * sc),
+            (ix + 10 * sc, hy - 34 * sc),
+            (ix + 82 * sc, hy - 22 * sc),
+            (ix + 148 * sc, hy - 8 * sc),
+            (ix + 195 * sc, hy + 2),
         ]
-        pygame.draw.polygon(screen, (8, 10, 14), [(int(x), int(y)) for x, y in fin_pts])
+        pygame.draw.polygon(screen, (8, 10, 15), [(int(x), int(y)) for x, y in island_pts])
+
+        # Sleek curved orca dorsal fin & back crest on the far-left horizon
+        fx = (0.115 - cam_shift_x * 0.5) * w
+        bob = 2.2 * math.sin(1.25 * t)
+        fin_pts = [
+            (fx - 42 * sc, hy + 1),
+            (fx - 20 * sc, hy - 6 * sc + bob),
+            (fx - 6 * sc, hy - 24 * sc + bob),
+            (fx + 3 * sc, hy - 44 * sc + bob),
+            (fx + 10 * sc, hy - 42 * sc + bob),
+            (fx + 6 * sc, hy - 20 * sc + bob),
+            (fx + 16 * sc, hy - 8 * sc + bob),
+            (fx + 48 * sc, hy + 1),
+        ]
+        pygame.draw.polygon(screen, (7, 9, 13), [(int(x), int(y)) for x, y in fin_pts])
 
     def draw_palms(self, screen, t, horizon_y, cam_shift_x):
-        """Draw the two tall silhouetted coconut palms on the left with feathered fronds."""
-        palm_vis = smooth((t - 2.0) / 2.4)
+        """Draw the two tall silhouetted coconut palms rooted on the island."""
+        palm_vis = smooth((t - 1.9) / 2.4)
         if palm_vis <= 0.01:
             return
         w, h = screen.get_size()
         sc = h / 860.0
-        col_sil = (7, 9, 13)
+        col_sil = (6, 8, 12)
+        base_y = horizon_y - 0.022
 
-        # Two palms matching the album cover placement
         palms = [
-            # (base_nx, base_ny, height_px, lean_px, crown_scale, phase)
-            (0.245 - cam_shift_x * 0.75, 0.72, 465 * sc * palm_vis, -42 * sc, 1.05 * sc * palm_vis, 0.0),
-            (0.355 - cam_shift_x * 0.70, 0.71, 375 * sc * palm_vis,  26 * sc, 0.85 * sc * palm_vis, 1.7),
+            (0.245 - cam_shift_x * 0.72, base_y, 355 * sc * palm_vis, -46 * sc, 1.05 * sc * palm_vis, 0.0),
+            (0.345 - cam_shift_x * 0.72, base_y + 0.004, 275 * sc * palm_vis, 28 * sc, 0.85 * sc * palm_vis, 1.7),
         ]
 
         for bx_n, by_n, trunk_h, lean, f_scale, ph in palms:
             bx = bx_n * w
             by = by_n * h
-            sway = 11.0 * sc * np.sin(1.15 * t + ph)
+            sway = 11.0 * sc * math.sin(1.12 * t + ph)
 
-            # Build tapered curved trunk polygon
             left_edge, right_edge = [], []
             steps = 22
             for s_i in range(steps + 1):
                 u = s_i / steps
                 cx = bx + (u ** 1.55) * lean + (u ** 1.4) * sway
                 cy = by - u * trunk_h
-                half_w = (9.5 * (1.0 - 0.58 * u)) * sc
+                half_w = (9.0 * (1.0 - 0.60 * u)) * sc
                 left_edge.append((int(cx - half_w), int(cy)))
                 right_edge.append((int(cx + half_w), int(cy)))
-            trunk_poly = left_edge + right_edge[::-1]
-            pygame.draw.polygon(screen, col_sil, trunk_poly)
+            pygame.draw.polygon(screen, col_sil, left_edge + right_edge[::-1])
 
             tip_x = bx + lean + sway
             tip_y = by - trunk_h
 
-            # 11 lush drooping palm fronds with individual hanging leaflets
             frond_angles = [-2.75, -2.35, -1.95, -1.55, -1.10, -0.65, -0.25, 0.18, 0.58, 2.95, 3.30]
             for idx_f, base_ang in enumerate(frond_angles):
-                ang = base_ang + 0.04 * np.sin(1.4 * t + ph + idx_f)
-                f_len = (138 + 18 * np.cos(idx_f * 1.7)) * f_scale
-                dir_x = np.cos(ang)
-                dir_y = np.sin(ang) * 0.65
+                ang = base_ang + 0.04 * math.sin(1.35 * t + ph + idx_f)
+                f_len = (135 + 18 * math.cos(idx_f * 1.7)) * f_scale
+                dir_x = math.cos(ang)
+                dir_y = math.sin(ang) * 0.65
 
-                # Spine of the frond
                 spine = []
                 for j in range(15):
                     u = j / 14.0
                     px = tip_x + dir_x * f_len * u
-                    py = tip_y + dir_y * f_len * u + (u ** 1.85) * 62.0 * f_scale
+                    py = tip_y + dir_y * f_len * u + (u ** 1.85) * 60.0 * f_scale
                     spine.append((px, py))
 
-                pygame.draw.lines(screen, col_sil, False, [(int(x), int(y)) for x, y in spine], max(2, int(3.2 * sc)))
+                pygame.draw.lines(screen, col_sil, False, [(int(x), int(y)) for x, y in spine], max(2, int(3.0 * sc)))
 
-                # Hanging feather leaflets along each frond
                 for j in range(2, 14):
                     u = j / 14.0
                     px, py = spine[j]
-                    lf_len = (34.0 * np.sin(u * np.pi) + 8.0) * f_scale
+                    lf_len = (33.0 * math.sin(u * math.pi) + 7.0) * f_scale
                     hang_x = px + (6.0 if dir_x >= 0 else -6.0) * f_scale
                     hang_y = py + lf_len
-                    pygame.draw.line(screen, col_sil, (int(px), int(py)), (int(hang_x), int(hang_y)), max(1, int(2.2 * sc)))
+                    pygame.draw.line(screen, col_sil, (int(px), int(py)), (int(hang_x), int(hang_y)), max(1, int(2.0 * sc)))
 
     def draw_staircase(self, screen, t, user_yaw, user_pitch):
-        """Render the twisted foreground Escher staircase as solid, depth-sorted 3D polygons."""
-        stair_prog = smooth((t - 3.2) / 3.4)
+        """Render the twisted 3D Escher staircase and its soft water reflection."""
+        stair_prog = smooth((t - 3.0) / 3.4)
         if stair_prog <= 0.001:
             return
 
@@ -515,12 +586,12 @@ class PaintedElements:
         cx_scr, cy_scr = w * 0.5, h * 0.52
         fov = h * 1.12
 
-        yaw = 0.035 * np.sin(0.18 * t) + user_yaw
-        pitch = 0.08 + 0.012 * np.cos(0.22 * t) + user_pitch
+        yaw = 0.032 * math.sin(0.18 * t) + user_yaw
+        pitch = 0.08 + 0.012 * math.cos(0.22 * t) + user_pitch
         cam_y = 0.22
         cam_z = -1.55
-        cy, sy = np.cos(yaw), np.sin(yaw)
-        cp, sp = np.cos(pitch), np.sin(pitch)
+        cy, sy = math.cos(yaw), math.sin(yaw)
+        cp, sp = math.cos(pitch), math.sin(pitch)
 
         def proj(pt):
             rx, ry, rz = pt[0], pt[1] - cam_y, pt[2] - cam_z
@@ -533,32 +604,38 @@ class PaintedElements:
             inv = fov / z2
             return (int(cx_scr + x1 * inv), int(cy_scr - y2 * inv)), z2
 
-        # Draw slabs back-to-front (highest frac = farthest in midground -> lowest frac = closest foreground)
+        refl_layer = pygame.Surface((w, h), pygame.SRCALPHA)
+
         for frac, pts3d in reversed(self.slabs):
             if frac > stair_prog:
                 continue
-            bob = 0.005 * np.sin(1.5 * t - frac * 5.0)
+            bob = 0.005 * math.sin(1.4 * t - frac * 5.0)
             projected = [proj((x, y + bob, z)) for (x, y, z) in pts3d]
             if any(p is None for p in projected):
                 continue
             pts2d = [p[0] for p in projected]
 
-            # Tone shifts gently from misty horizon distance to crisp foreground ivory
-            fade = 1.0 - 0.36 * frac
-            top_col = (int(232 * fade), int(236 * fade), int(244 * fade))
-            front_col = (int(58 * fade), int(64 * fade), int(74 * fade))
-            side_col = (int(34 * fade), int(38 * fade), int(46 * fade))
-            edge_col = (int(248 * fade), int(250 * fade), int(255 * fade))
+            # Misty atmospheric depth fade as steps climb into the night sky
+            fade = 1.0 - 0.42 * frac
+            top_col = (int(234 * fade), int(239 * fade), int(248 * fade))
+            front_col = (int(56 * fade), int(62 * fade), int(74 * fade))
+            side_col = (int(32 * fade), int(36 * fade), int(46 * fade))
+            edge_col = (int(250 * fade), int(252 * fade), int(255 * fade))
 
-            # Side thickness faces
+            # Subtle water reflection for lower steps
+            if frac < 0.36:
+                refl_alpha = int(42 * (1.0 - frac / 0.36))
+                refl_pts = [(px, int(py + (h * 0.14))) for (px, py) in pts2d[:4]]
+                pygame.draw.polygon(refl_layer, (190, 210, 235, refl_alpha), refl_pts)
+
             pygame.draw.polygon(screen, side_col, [pts2d[1], pts2d[2], pts2d[6], pts2d[5]])
             pygame.draw.polygon(screen, side_col, [pts2d[0], pts2d[3], pts2d[7], pts2d[4]])
-            # Front riser face
             pygame.draw.polygon(screen, front_col, [pts2d[0], pts2d[1], pts2d[5], pts2d[4]])
-            # Top luminous ivory tread
             top_poly = [pts2d[0], pts2d[1], pts2d[2], pts2d[3]]
             pygame.draw.polygon(screen, top_col, top_poly)
             pygame.draw.aalines(screen, edge_col, True, top_poly)
+
+        screen.blit(refl_layer, (0, 0))
 
 
 def bloom_pass(surf, k, radius, amount):
@@ -567,7 +644,8 @@ def bloom_pass(surf, k, radius, amount):
     if hasattr(pygame.transform, "gaussian_blur"):
         small = pygame.transform.gaussian_blur(small, max(1, radius // k))
     glow = pygame.transform.smoothscale(small, (w, h))
-    glow.fill((int(255 * amount),) * 3, special_flags=pygame.BLEND_MULT)
+    val = int(np.clip(amount * 255, 0, 255))
+    glow.fill((val, val, val), special_flags=pygame.BLEND_MULT)
     return glow
 
 
@@ -578,7 +656,7 @@ def draw_album_emblem(screen, f_en, f_jp, alpha_scale):
     w, h = screen.get_size()
     cx, cy = w // 2, int(h * 0.515)
 
-    en_surf = f_en.render("HAWAII: PART II", True, (242, 245, 250))
+    en_surf = f_en.render("HAWAII: PART II", True, (242, 246, 252))
     en_surf.set_alpha(int(240 * alpha_scale))
     screen.blit(en_surf, (cx - en_surf.get_width() // 2, cy - 30))
 
@@ -614,15 +692,16 @@ def main():
     scale = min(0.93 * info.current_h / H, 0.96 * info.current_w / W)
     win_size = (int(W * scale), int(H * scale))
 
-    window = pygame.display.set_mode(win_size)
-    pygame.display.set_caption("Hawaii: Part II — Dream Sweet in Sea Major — Kobsi · 2026")
+    window = pygame.display.set_mode(win_size, pygame.RESIZABLE)
+    pygame.display.set_caption(TITLE)
 
     screen = pygame.Surface((W, H))
     shader = BackdropShader(370, 215)
     elements = PaintedElements()
 
     mono = "consolas,menlo,dejavusansmono,couriernew,monospace"
-    f_hud = pygame.font.SysFont(mono, 16)
+    f_hud = pygame.font.SysFont(mono, 15)
+    f_sign = pygame.font.SysFont(mono, 16, bold=True)
     f_title = pygame.font.SysFont("georgia,timesnewroman,serif", 21, italic=True)
     f_en = pygame.font.SysFont("arial,helvetica,sans-serif", 34, bold=True)
     f_jp = pygame.font.SysFont("meiryo,msgothic,yugothic,arialunicodems,sans-serif", 29, bold=True)
@@ -636,6 +715,7 @@ def main():
     user_pitch = 0.0
     wave_pulse = 0.0
     shoot_timer = -1.0
+    stars_triggered = 0
 
     while True:
         for e in pygame.event.get():
@@ -664,13 +744,18 @@ def main():
                         window = pygame.display.set_mode(win_size, pygame.FULLSCREEN)
                     else:
                         win_size = (int(W * scale), int(H * scale))
-                        window = pygame.display.set_mode(win_size)
+                        window = pygame.display.set_mode(win_size, pygame.RESIZABLE)
                 elif e.key == pygame.K_s:
-                    pygame.image.save(screen, str(Path(__file__).with_name(f"hawaii_part_ii_{int(time.time())}.png")))
+                    stamp = time.strftime("%Y%m%d_%H%M%S")
+                    pygame.image.save(screen, str(Path(__file__).with_name(f"dream_sweet_{stamp}.png")))
+            elif e.type == pygame.VIDEORESIZE and not fullscreen:
+                win_size = (e.w, e.h)
+                window = pygame.display.set_mode(win_size, pygame.RESIZABLE)
 
             if e.type == pygame.MOUSEBUTTONDOWN and e.button == 3:
                 wave_pulse = 1.0
                 shoot_timer = 0.0
+                stars_triggered += 1
                 audio.play_star()
 
         if pygame.mouse.get_pressed()[0]:
@@ -683,7 +768,7 @@ def main():
         dt = clock.tick(30) / 1000.0
         if not paused:
             step = min(dt, 1.0 / 15.0)
-            t += step  # Runs continuously until you close the window or press [R]
+            t += step
             if wave_pulse > 0.0:
                 wave_pulse = max(0.0, wave_pulse - step * 0.42)
             if shoot_timer >= 0.0:
@@ -691,34 +776,37 @@ def main():
                 if shoot_timer > 1.0:
                     shoot_timer = -1.0
 
-        # 1. Smooth volumetric sky, god-rays, full moon & Fresnel ocean waves
+        # 1. Volumetric sky, clouds, god-rays, full moon & Fresnel ocean waves
         horizon_y, cam_shift_x, moon_uv = shader.render(screen, t, user_yaw, user_pitch, wave_pulse)
 
-        # 2. Crisp stars, dust motes & ghostly anglerfish beside the moon
-        elements.draw_stars_and_motes(screen, t, horizon_y, cam_shift_x, shoot_timer)
-        elements.draw_ghost_anglerfish(screen, t, moon_uv, horizon_y)
+        # 2. Crisp stars, drifting snow motes & ghostly anglerfish with bioluminescent lure
+        elements.draw_stars_and_snow(screen, t, horizon_y, cam_shift_x, shoot_timer)
+        elements.draw_ghost_anglerfish(screen, t, moon_uv)
 
-        # 3. Orca dorsal fin, silhouetted coconut palms & solid 3D twisted staircase
-        elements.draw_orca_fin(screen, t, horizon_y, cam_shift_x)
+        # 3. Volcanic island, orca dorsal fin, coconut palms & 20-step 3D Escher staircase
+        elements.draw_island_and_orca(screen, t, horizon_y, cam_shift_x)
         elements.draw_palms(screen, t, horizon_y, cam_shift_x)
         elements.draw_staircase(screen, t, user_yaw, user_pitch)
 
-        # 4. Soft atmospheric bloom pass
-        screen.blit(bloom_pass(screen, 4, 10, 0.28), (0, 0), special_flags=pygame.BLEND_ADD)
+        # 4. Multi-pass atmospheric bloom
+        screen.blit(bloom_pass(screen, 4, 8, 0.24), (0, 0), special_flags=pygame.BLEND_ADD)
+        screen.blit(bloom_pass(screen, 10, 18, 0.16), (0, 0), special_flags=pygame.BLEND_ADD)
 
         if show_emblem:
             draw_album_emblem(screen, f_en, f_jp, smooth((t - 4.0) / 2.2))
 
-        # Kobsi · 2026 HUD
-        sign_surf = f_hud.render("Kobsi · 2026", True, (186, 196, 210))
-        ctrl_surf = f_hud.render("drag orbit · right-click star · [E] emblem · [M] mute · [S] save", True, (124, 134, 148))
+        # --- MANDATORY BRANDING & HUD ---
         title_surf = f_title.render("Dream Sweet in Sea Major", True, (232, 238, 246))
-        time_surf = f_hud.render(f"{'●' if int(t * 2) % 2 == 0 else ' '} t {t:05.2f}s", True, (198, 214, 232))
-
-        screen.blit(sign_surf, (48, H - 64))
-        screen.blit(ctrl_surf, (48, H - 38))
+        time_surf = f_hud.render(f"{'●' if int(t * 2) % 2 == 0 else ' '} t {t:06.2f}s", True, (198, 214, 232))
         screen.blit(title_surf, (W - 48 - title_surf.get_width(), 30))
-        screen.blit(time_surf, (W - 48 - time_surf.get_width(), 60))
+        screen.blit(time_surf, (W - 48 - time_surf.get_width(), 58))
+
+        hud_y = H - 82
+        screen.blit(f_sign.render(SIGN, True, (194, 206, 222)), (48, hud_y - 26))
+        telem = f"horizon {horizon_y:.2f}   yaw {math.degrees(user_yaw):+05.1f}°   stars {stars_triggered:02d}"
+        screen.blit(f_hud.render(telem, True, (148, 162, 180)), (48, hud_y))
+        ctrls = "left-drag orbit · right-click star & wave · [e] emblem · [m] mute · [space] pause · [r] restart · [s] save · [f] fullscreen"
+        screen.blit(f_hud.render(ctrls, True, (108, 120, 136)), (48, hud_y + 24))
 
         window.blit(screen if win_size == (W, H) else pygame.transform.smoothscale(screen, win_size), (0, 0))
         pygame.display.flip()
