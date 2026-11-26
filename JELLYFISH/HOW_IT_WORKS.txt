@@ -1,0 +1,16 @@
+HOW IT WORKS - Jellyfish — Speaking In Light
+Kobsi · @Kobsi17 · 2026
+
+The whole artwork is one self-contained Python file with no external images or audio files.
+
+1. Parametric 3D jellyfish
+   The bell dome, four lacy oral arms, and twenty-four tentacles are generated as 3D
+   point clouds with outward surface normals.
+
+2. Contraction & follow-through
+   A smooth swimming cycle squeezes the bell while delayed sine waves ripple down
+   the oral arms and tentacles.
+
+3. Nerve pulses & sonar
+   Bright cyan and pearl pulses travel along the 8 radial nerve stripes. Right-clicking
+   sends a fresh bioluminescent surge through the main bell.

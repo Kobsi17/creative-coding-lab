@@ -1,0 +1,19 @@
+HOW IT WORKS - Birth Flower
+Kobsi · @Kobsi17 · 2026
+
+The whole artwork is one self-contained Python file with no external images or audio files.
+
+1. The 366-day almanac
+   Special dates and monthly pools assign each day a flower name, meaning, shape archetype,
+   and color palette.
+
+2. Parametric 3D particles
+   Each archetype uses mathematical formulas for petal curvature, cup depth, and spiral
+   arrangements to place thousands of 3D points.
+
+3. Growth choreography
+   Particles reveal smoothly from stem to blossom over the opening seconds.
+
+4. Bloom & depth
+   3D points are rotated by the camera angle, projected onto the canvas, and layered with
+   downsampled additive glow.

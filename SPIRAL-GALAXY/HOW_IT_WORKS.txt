@@ -1,0 +1,12 @@
+HOW IT WORKS - Spiral Galaxy
+Kobsi · @Kobsi17 · 2026
+
+The whole artwork is one self-contained Python file with no external images or audio files.
+
+1. Building the galaxy
+   Particles are pre-built in four groups: stationary background stars, diffuse dust,
+   four spiral arms of 900 stars each, and a warm central core.
+
+2. Layered reveal & rotation
+   Every frame reveals more particles up to the total count while rotating each star
+   around the galactic center and projecting the tilted disc onto the screen.

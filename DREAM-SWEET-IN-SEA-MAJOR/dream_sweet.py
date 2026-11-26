@@ -1,4 +1,6 @@
-# Kobsi · 2026 — Hawaii: Part II (Dream Sweet in Sea Major — Volumetric Shader & 3D Art)
+# Dream Sweet in Sea Major — Kobsi · 2026
+# Kobsi · @Kobsi17 · 2026. Free for learning and personal projects. See LICENSE.txt.
+# Don't repost it or sell it as your own, and don't use it to train AI models.
 import sys
 import time
 from pathlib import Path

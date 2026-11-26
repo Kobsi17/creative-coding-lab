@@ -1,0 +1,16 @@
+HOW IT WORKS - Galactic Star Nursery
+Kobsi · @Kobsi17 · 2026
+
+The whole artwork is one self-contained Python file with no external images or audio files.
+
+1. Binary nebula & protostars
+   Thousands of 3D particles are arranged into nebula clouds and dense star-forming
+   regions that ignite after the opening seconds.
+
+2. Fly-through & warp
+   Particles stream past the camera in 3D space, wrapping seamlessly as you steer
+   with the mouse or toggle warp speed.
+
+3. Lydian soundscape
+   NumPy synthesizes a 36-second Lydian drone and harp arpeggios, plus a bright
+   chime whenever you trigger a cosmic burst.

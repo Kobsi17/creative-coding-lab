@@ -1,0 +1,21 @@
+HOW IT WORKS - The Backrooms: Level 0
+Kobsi · @Kobsi17 · 2026
+
+The whole artwork is one self-contained Python file with no external images or audio files.
+
+1. The world grid
+   A procedural floorplan defines infinite-feeling hallways, pillars, and corners.
+
+2. Vectorized raycasting
+   Instead of looping pixel by pixel, NumPy marches rays for all screen columns at once
+   to find where each column hits a wall, ceiling tile, or floor plane.
+
+3. Fluorescent lighting and surges
+   Overhead light panels brighten the ceiling and cast warm reflections onto the carpet.
+   During a surge, lights flicker and spike in brightness.
+
+4. Synthesized 60 Hz hum
+   pygame.mixer plays a procedurally generated 60 Hz electrical drone with subtle harmonics.
+
+5. ASCII & bloom
+   Brightness values map to ASCII character pools, then get layered with downsampled bloom.

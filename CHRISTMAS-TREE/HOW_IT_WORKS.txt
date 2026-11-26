@@ -1,0 +1,16 @@
+HOW IT WORKS - Winter Wonderland
+Kobsi · @Kobsi17 · 2026
+
+The whole artwork is one self-contained Python file with no external images or audio files.
+
+1. The snow globe & sky
+   Every cell on the ASCII grid checks whether it sits inside the circular glass dome
+   or in the night sky outside, where aurora ribbons wave overhead.
+
+2. Layered winter scene
+   The pine tree, golden star, crimson ornaments, cabin, and snowman are built from
+   vectorized distance checks and revealed progressively.
+
+3. Trail buffer & glow
+   Each frame blends into a decaying trail buffer and adds two passes of Gaussian blur
+   so the star and ornaments glow warmly.

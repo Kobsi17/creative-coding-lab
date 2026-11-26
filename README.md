@@ -1,27 +1,25 @@
-<div align="center">
-  <h1>Creative Coding Lab</h1>
-  <p><strong>Kobsi</strong> · Procedural worlds in Python</p>
-  <p><a href="#gallery">Gallery</a> · <a href="#run-a-sketch">Run a sketch</a> · <a href="#controls">Controls</a></p>
-  <a href="spiral_galaxy_pygame.py"><img src="previews/spiral-galaxy-refined.png" alt="Four spiral arms of blue and magenta stars around a warm galactic core" width="780"></a>
-  <p><strong>Spiral Galaxy</strong> · A rotating particle study with a layered reveal.</p>
-</div>
+# Kobsi — Procedural & ASCII Code Art
 
-## Gallery
+Kobsi (`@Kobsi17`) is a creative coding artist who builds self-contained animated worlds in Python using ASCII glyphs, 3D particles, volumetric light, and procedurally synthesized sound.
 
-I make small animated worlds with ASCII glyphs, particles, light, and synthesized sound. Each sketch runs on its own.
+This repository is an archive of the works and a technical portfolio: what each piece is, how it was made, and the full source code.
 
-| | |
-| :--- | :--- |
-| [![Blue ASCII jellyfish and drifting marine snow](previews/jellyfish-abyss.png)](JellyFish1.py)<br>**[Jellyfish](JellyFish1.py)**<br>Bioluminescent bells, trailing tentacles, and sonar in deep blue water. | [![Stars and glowing nebulae in a galactic nursery](previews/star-nursery.png)](Star%20nursery.py)<br>**[Galactic Star Nursery](Star%20nursery.py)**<br>A 3D fly-through of nebulae, forming stars, and cosmic bursts. |
-| [![Moonlit ocean and a staircase beneath a night sky](previews/dream.png)](Dream.py)<br>**[Dream Sweet in Sea Major](Dream.py)**<br>A moonlit seascape with palms, a staircase, and a synthesized score. | [![A birth flower rendered as luminous particles](previews/birth-flower.png)](BirthFlower.py)<br>**[Birth Flower](BirthFlower.py)**<br>A date selects a flower assembled from glowing 3D particles. |
-| [![Yellow ASCII corridors under fluorescent lights](previews/backroom.png)](Backroom.py)<br>**[Backroom](Backroom.py)**<br>Raycast corridors, flickering fluorescents, and an electrical drone. | [![An ASCII Christmas tree in a snow globe](previews/christmas-tree.png)](christmas_tree.py)<br>**[Christmas Tree](christmas_tree.py)**<br>A winter snow globe with falling snow, ornaments, and an aurora. |
-| [![An amber lighthouse beam over a blue ASCII sea](previews/salt-signal.png)](salt_signal.py)<br>**[Salt Signal](salt_signal.py)**<br>An interactive lighthouse study with drifting fog, rain, and broken reflections. | |
+## Works
 
-[Spiral Galaxy in Turtle](spiral_galaxy_turtle.py) is a still study of the same four-arm motif, drawn dot by dot.
+| | Work | Year | Source code |
+|---|---|---|---|
+| ![](SPIRAL-GALAXY/images/preview.png) | [SPIRAL GALAXY](SPIRAL-GALAXY/) | 2026 | free, in this repository |
+| ![](JELLYFISH/images/preview.png) | [JELLYFISH (Speaking in Light)](JELLYFISH/) | 2026 | free, in this repository |
+| ![](STAR-NURSERY/images/preview.png) | [GALACTIC STAR NURSERY](STAR-NURSERY/) | 2026 | free, in this repository |
+| ![](DREAM-SWEET-IN-SEA-MAJOR/images/preview.png) | [DREAM SWEET IN SEA MAJOR](DREAM-SWEET-IN-SEA-MAJOR/) | 2026 | free, in this repository |
+| ![](BIRTH-FLOWER/images/preview.png) | [BIRTH FLOWER](BIRTH-FLOWER/) | 2026 | free, in this repository |
+| ![](BACKROOM/images/preview.png) | [THE BACKROOMS: LEVEL 0](BACKROOM/) | 2026 | free, in this repository |
+| ![](CHRISTMAS-TREE/images/preview.png) | [WINTER WONDERLAND](CHRISTMAS-TREE/) | 2026 | free, in this repository |
+| ![](SALT-SIGNAL/images/preview.png) | [SALT SIGNAL](SALT-SIGNAL/) | 2026 | free, in this repository |
 
-## Run a sketch
+## Run a Sketch
 
-From the repository root, create a virtual environment and install the dependencies. These sketches use NumPy and pygame-ce, which provides the `pygame` import.
+From the repository root, create a virtual environment and install the dependencies (`numpy` and `pygame-ce`, which provides the `pygame` import):
 
 **Windows PowerShell**
 
@@ -30,7 +28,7 @@ py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-**macOS, Linux, or WSL**
+**macOS / Linux**
 
 ```sh
 python3 -m venv .venv
@@ -38,31 +36,15 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-Run any one of these commands. In PowerShell, replace `python` with `.\.venv\Scripts\python.exe`.
+Then run any piece from its folder, for example:
 
-| Sketch | Command |
-| :--- | :--- |
-| Spiral Galaxy | `python spiral_galaxy_pygame.py` |
-| Jellyfish | `python JellyFish1.py` |
-| Galactic Star Nursery | `python "Star nursery.py"` |
-| Dream Sweet in Sea Major | `python Dream.py` |
-| Birth Flower | `python BirthFlower.py` |
-| Backroom | `python Backroom.py` |
-| Christmas Tree | `python christmas_tree.py` |
-| Salt Signal | `python salt_signal.py` |
-| Spiral Galaxy in Turtle | `python spiral_galaxy_turtle.py` |
+```sh
+python SALT-SIGNAL/salt_signal.py
+```
 
-WSL needs WSLg or a working X server. The Turtle study uses the standard library and needs Tk (on Debian or Ubuntu, install `python3-tk`).
+Each folder contains the full script, `HOW_IT_WORKS.txt`, `README.md`, `README.txt`, `requirements.txt`, `LICENSE.txt`, and `images/`.
 
-## Controls
+## License
 
-In the Pygame sketches, press **Space** to pause, **R** to restart, **S** to save a PNG beside the script, or **Esc** to exit. Close the Turtle window to exit. **M** toggles sound and **F** toggles fullscreen in Jellyfish, Galactic Star Nursery, Dream, Birth Flower, Backroom, and Salt Signal.
-
-| Sketch | Additional controls |
-| :--- | :--- |
-| Jellyfish | **Left-drag** to orbit. **Right-click** to send a pulse through the bell. |
-| Galactic Star Nursery | **Left-drag** to look around. **Right-click** for a cosmic burst. **W** toggles warp. |
-| Dream Sweet in Sea Major | **Left-drag** to shift the view. **Right-click** for a shooting star and a wave. **E** toggles the emblem. |
-| Birth Flower | **D** opens date entry. Type a date such as `Nov 15` and press **Enter**. **Up/Down** change the day, **Tab** advances the month, and **Left/Right** or **left-drag** orbit. |
-| Backroom | **Left-drag** to look around. Hold **right-click** for a fluorescent surge. |
-| Salt Signal | **Hold the left mouse button** and drag to steer the beam. **Right-click** to blast the foghorn and trigger a storm surge. |
+Kobsi · `@Kobsi17` · 2026. Free for learning and personal projects. See [LICENSE.txt](LICENSE.txt).
+Don't repost it or sell it as your own, and don't use it to train AI models.

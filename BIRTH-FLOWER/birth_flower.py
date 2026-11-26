@@ -1,4 +1,6 @@
-# Kobsi · 2026 — 366-Day Birth Flower Particle Studio
+# 366-Day Birth Flower Particle Studio — Kobsi · 2026
+# Kobsi · @Kobsi17 · 2026. Free for learning and personal projects. See LICENSE.txt.
+# Don't repost it or sell it as your own, and don't use it to train AI models.
 import sys
 import time
 import datetime

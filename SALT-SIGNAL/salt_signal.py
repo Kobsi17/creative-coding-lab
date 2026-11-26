@@ -1,4 +1,6 @@
 # Salt Signal — Kobsi · 2026
+# Kobsi · @Kobsi17 · 2026. Free for learning and personal projects. See LICENSE.txt.
+# Don't repost it or sell it as your own, and don't use it to train AI models.
 # Self-contained procedural ASCII storm lighthouse with procedural coastal audio
 #
 # run:   pip install numpy pygame-ce

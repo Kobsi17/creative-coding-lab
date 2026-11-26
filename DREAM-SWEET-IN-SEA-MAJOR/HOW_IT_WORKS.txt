@@ -1,0 +1,16 @@
+HOW IT WORKS - Dream Sweet In Sea Major
+Kobsi · @Kobsi17 · 2026
+
+The whole artwork is one self-contained Python file with no external images or audio files.
+
+1. The moonlit ocean
+   A vectorized shader computes sky gradients, moonlight reflection on the water, and
+   animated wave crests.
+
+2. The 3/4 celesta waltz
+   Before the first frame, NumPy synthesizes 16 bars of 3/4 waltz chords, celesta
+   bell tones, and rolling ocean surf into a stereo pygame sound buffer.
+
+3. Interactive sky & sea
+   Dragging shifts the perspective; right-clicking launches a shooting star with a
+   chime and ripples a wave across the water.

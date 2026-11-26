@@ -1,0 +1,16 @@
+HOW IT WORKS - Salt Signal
+Kobsi · @Kobsi17 · 2026
+
+The whole artwork is one self-contained Python file with no external images or audio files.
+
+1. Progressive entrance
+   Over the first seven seconds, the starry sky and fog fade in, followed by the basalt
+   cliff, ocean swells, and lighthouse tower, before the lantern ignites.
+
+2. Fog, waves, and beam
+   Layered sine waves form drifting fog and storm breakers. The beam brightness is
+   multiplied by the local fog density so it visibly cuts through the mist.
+
+3. Procedural coastal audio
+   NumPy synthesizes filtered wind noise, wave swells, a D-minor drone, celesta notes,
+   and an interactive 58 Hz nautical foghorn.
