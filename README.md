@@ -15,6 +15,7 @@ This repository is an archive of the works and a technical portfolio: what each 
 | ![](BACKROOM/images/preview.png) | [THE BACKROOMS: LEVEL 0](BACKROOM/) | 2026 | free, in this repository |
 | ![](CHRISTMAS-TREE/images/preview.png) | [WINTER WONDERLAND](CHRISTMAS-TREE/) | 2026 | free, in this repository |
 | ![](SALT-SIGNAL/images/preview.png) | [SALT SIGNAL](SALT-SIGNAL/) | 2026 | free, in this repository |
+| ![](CTENOPHORE/images/preview.png) | [CTENOPHORE (The Living Prism)](CTENOPHORE/) | 2026 | free, in this repository |
 
 ## Run a Sketch
 
@@ -38,8 +39,10 @@ python -m pip install -r requirements.txt
 Then run any piece from its folder, for example:
 
 ```sh
-python SALT-SIGNAL/salt_signal.py
+python CTENOPHORE/ctenophore.py
 ```
+
+For **CTENOPHORE (The Living Prism)**: `WASD`/Arrows swim & steer, `Q/E` dive/ascend, `Shift` surge, `Space` prism pulse, `C` follow-cursor autopilot, `Left-click` sonar ripple, `Left-drag` stir plankton, `Right-drag` orbit camera, `1/2/3` sea states, `P` pause, `M` mute, `R` reset, `S` screenshot, `F` fullscreen.
 
 Each folder contains the full script, `HOW_IT_WORKS.txt`, `README.md`, `README.txt`, `requirements.txt`, `LICENSE.txt`, and `images/`.
 

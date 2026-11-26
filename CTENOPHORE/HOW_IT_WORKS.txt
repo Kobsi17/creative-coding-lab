@@ -1,0 +1,26 @@
+CTENOPHORE — HOW IT WORKS
+
+1. Parametric 3D Morphology
+   The lobate body is sampled over (u, v) into a flattened biradial bell with
+   8 subtle flutes and flaring oral lobes. Eight meridian comb rows (ctenes)
+   sit just outside the translucent membrane and carry metachronal cilia waves
+   that cycle through cyan, teal, and violet prism bands.
+
+2. Creature Piloting & Trailing Tentacles
+   WASD/Arrows and Q/E drive thrust, yaw, pitch, and banking in 3D space under
+   viscous underwater drag. Two primary tentacles (68 segments each) and 36
+   fine tentilla curtains follow the body in world space with spring-lagged
+   motion and sinusoidal water waves.
+
+3. Interactive Plankton & Sonar Ripples
+   460 plankton motes live in a wrapping 3D chamber around the creature.
+   Left-dragging injects tangential vortex currents and drag wakes; swimming
+   through dense plankton boosts the ctenophore's feeding glow. Left-clicking
+   spawns an expanding sonar ripple that triggers a prism pulse and chime when
+   it reaches the creature.
+
+4. ASCII Projection & Bloom
+   Points are depth-sorted onto a 211x78 ASCII cell grid. Silhouette edges
+   receive directional outline glyphs (/ \ | - _), interiors use density-ramped
+   character pools, and pygame smoothscale + Gaussian blur passes create the
+   anisotropic horizontal scanline glow and radial bloom.
