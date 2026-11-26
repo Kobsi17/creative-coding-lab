@@ -15,6 +15,7 @@ I make small animated worlds with ASCII glyphs, particles, light, and synthesize
 | [![Blue ASCII jellyfish and drifting marine snow](previews/jellyfish-abyss.png)](JellyFish1.py)<br>**[Jellyfish](JellyFish1.py)**<br>Bioluminescent bells, trailing tentacles, and sonar in deep blue water. | [![Stars and glowing nebulae in a galactic nursery](previews/star-nursery.png)](Star%20nursery.py)<br>**[Galactic Star Nursery](Star%20nursery.py)**<br>A 3D fly-through of nebulae, forming stars, and cosmic bursts. |
 | [![Moonlit ocean and a staircase beneath a night sky](previews/dream.png)](Dream.py)<br>**[Dream Sweet in Sea Major](Dream.py)**<br>A moonlit seascape with palms, a staircase, and a synthesized score. | [![A birth flower rendered as luminous particles](previews/birth-flower.png)](BirthFlower.py)<br>**[Birth Flower](BirthFlower.py)**<br>A date selects a flower assembled from glowing 3D particles. |
 | [![Yellow ASCII corridors under fluorescent lights](previews/backroom.png)](Backroom.py)<br>**[Backroom](Backroom.py)**<br>Raycast corridors, flickering fluorescents, and an electrical drone. | [![An ASCII Christmas tree in a snow globe](previews/christmas-tree.png)](christmas_tree.py)<br>**[Christmas Tree](christmas_tree.py)**<br>A winter snow globe with falling snow, ornaments, and an aurora. |
+| [![An amber lighthouse beam over a blue ASCII sea](previews/salt-signal.png)](salt_signal.py)<br>**[Salt Signal](salt_signal.py)**<br>An interactive lighthouse study with drifting fog, rain, and broken reflections. | |
 
 [Spiral Galaxy in Turtle](spiral_galaxy_turtle.py) is a still study of the same four-arm motif, drawn dot by dot.
 
@@ -48,6 +49,7 @@ Run any one of these commands. In PowerShell, replace `python` with `.\.venv\Scr
 | Birth Flower | `python BirthFlower.py` |
 | Backroom | `python Backroom.py` |
 | Christmas Tree | `python christmas_tree.py` |
+| Salt Signal | `python salt_signal.py` |
 | Spiral Galaxy in Turtle | `python spiral_galaxy_turtle.py` |
 
 WSL needs WSLg or a working X server. The Turtle study uses the standard library and needs Tk (on Debian or Ubuntu, install `python3-tk`).
@@ -63,3 +65,4 @@ In the Pygame sketches, press **Space** to pause, **R** to restart, **S** to sav
 | Dream Sweet in Sea Major | **Left-drag** to shift the view. **Right-click** for a shooting star and a wave. **E** toggles the emblem. |
 | Birth Flower | **D** opens date entry. Type a date such as `Nov 15` and press **Enter**. **Up/Down** change the day, **Tab** advances the month, and **Left/Right** or **left-drag** orbit. |
 | Backroom | **Left-drag** to look around. Hold **right-click** for a fluorescent surge. |
+| Salt Signal | **Hold the left mouse button** and move the pointer to steer the beam. Release to return to the automatic sweep. |
